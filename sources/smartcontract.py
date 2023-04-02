@@ -100,7 +100,42 @@ def delete_post(post: Post, owner: Signer):
   update_post_event.emit()
   
 #Like Post
+@instruction
+def like_post(like: Empty[Like], post: Post, user: User, liker: Signer):
+  assert user.owner == liker.key(), 'Incorrect liker'
 
+  like_account = like.init(
+    payer = liker,
+    seeds = ['liker', post.owner, post.id, liker],
+  )
+  like_account.post_owner = post.owner
+  like_account.post_id = post.id
+  like_account.liker = liker.key()
+
+  post.likes += 1
+  print('Post id', post.id, 'by owner', post.owner, 'now has', post.likes, 'likes')
+
+  #Emit like post event
+  like_dislike_post_event = LikeDislikePostEvent(post.owner, post.id, post.likes) #Created the instance whit params
+  like_dislike_post_event.emit()
+
+#Dislike Post
+@instruction
+def dislike_post(like: Like, post: Post, disliker: Signer):
+  assert like.liker == disliker.key(), 'Incorrect disliker'
+  assert like.post_owner == post.owner, 'Incorrect post owner'
+  assert like.post_id == post.id, 'Incorrect post id'
+
+  #Close the like account by transferring the lamports to the owner
+  like.transfer_lamports(disliker, rent_exempt_lamports(80))
+  post.likes -= 1
+  print('Post id', post.id, 'now has', post.likes, 'likes')
+
+  #Emit update post event
+  like_dislike_post_event = LikeDislikePostEvent(post.owner, post.id, post.likes) #Created the instance whit params
+  like_dislike_post_event.emit()
+  
+  
 ## E V E N T S ##
 
 #Trigger to Create Post
@@ -129,6 +164,17 @@ class DeletePostEvent(Event):
   def  __init__(self,owner: Pubkey, id:u64):
     self.owner = owner
     self.id = id
+
+#Trigger to Like/Dislike Post
+class LikeDislikePostEvent(Event):
+  owner: Pubkey
+  id: u64
+  likes: u64
+
+  def  __init__(self,owner: Pubkey, id:u64, likes: u64):
+    self.owner = owner
+    self.id = id    
+    self.likes = likes
 
 #Calculate rend to refund afted delete the post
 #In this seahorse version can't acces lamports  
