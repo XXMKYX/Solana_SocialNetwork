@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { RPC_ENDPOINT } from "../utils";
+import { GlobalState} from "../state/global"; //Hold the provider
 
 //Wallet Imports
 import {
@@ -29,7 +30,9 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <WalletConnectionProvider>
+      <GlobalState>
       {<Component {...pageProps} />}
+      </GlobalState>
     </WalletConnectionProvider>
   );
 }
