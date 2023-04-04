@@ -20,9 +20,11 @@ export default function Home() {
   const [createPostModalOpen, setCreatePostModalOpen] = useState(false);
   const [currentEditPostID, setCurrentEditPostID] = useState(null);
 
-  const { program } = useGlobalState();
+  
 
-  //Quit comments just to see and verify get the program, after that comment two next lines
+  //Quit comments just to see and verify get the program, after that comment next lines
+  
+  //const { program } = useGlobalState(); //This is to verify the two nexr lines
   //console.log("THIS IS MY PROGRAM: ", program);
   //console.log("THIS IS MY PROGRAM INSTRUCTIONS: ", program.instruction);
 

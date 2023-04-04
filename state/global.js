@@ -1,8 +1,9 @@
 //To use our Context
 import { createContext, useCallback, useEffect, useState } from "react";
-import { getProgram } from "../utils/program";
-
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
+//Functions from SmartContract (Program)
+import { getProgram, getPostAccountPk, getLikeAccountPk, getUserAccountPk } from "../utils";
+
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { Toast } from "react-hot-toast"; //notify
