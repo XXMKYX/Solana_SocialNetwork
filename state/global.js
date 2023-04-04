@@ -2,7 +2,12 @@
 import { createContext, useCallback, useEffect, useState } from "react";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 //Functions from SmartContract (Program)
-import { getProgram, getPostAccountPk, getLikeAccountPk, getUserAccountPk } from "../utils";
+import {
+  getProgram,
+  getPostAccountPk,
+  getLikeAccountPk,
+  getUserAccountPk,
+} from "../utils";
 
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
@@ -24,6 +29,8 @@ export const GlobalContext = createContext({
 
 export const GlobalState = ({ children }) => {
   const [program, setProgram] = useState(); //Get the program and set it in our state to use anywhere
+  const [isConnected, setIsConnected] = useState(); //To check connection
+  const [UserAccount, setUserAccount] = useState(); //Save user account to fetch
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
   useEffect(() => {
@@ -34,6 +41,32 @@ export const GlobalState = ({ children }) => {
       setProgram(null);
     }
   }, [connection, wallet]); //if [] will run when the page fist loads, [connection] when connection
+
+  //CREATING USER
+  //1- Check wallet connection
+  useEffect(() => {
+    setIsConnected(!!wallet?.publicKey); //True or false
+  }, [wallet]);
+  //2- Check for a user account by fetching the user
+  const fetchUserAccount = useCallback(async () => {
+    if (!program) return;
+    try {
+      //Passing the seeds
+      const userAccountPk = await getUserAccountPk(wallet?.publicKey);
+      console.log(userAccountPk);
+      const userAccount = await program.account.user.fetch(userAccountPk);
+      console.log("User found!");
+      setUserAccount(userAccount);
+    } catch (e) {
+      setUserAccount(null);
+      console.log("No user found!");
+    }
+  });
+
+  //Check for user account
+  useEffect(() => {
+    fetchUserAccount();
+  }, [isConnected]);
 
   return (
     <GlobalContext.Provider
