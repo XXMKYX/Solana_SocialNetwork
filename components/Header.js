@@ -28,9 +28,14 @@ const style = {
 };
 
 const Header = ({ setCreatePostModalOpen }) => {
-  const router = useRouter();
-
-  const hasUserAccount = true;
+  //const router = useRouter();
+  //If non userAccount then false, if true we not goin to see the createAccount Button
+  //const hasUserAccount = false;
+  //Create user
+  // const createUser = () =>{
+  //   console.log("temp")
+  // }
+  const { isConnected, hasUserAccount, createUser } = useGlobalState();
 
   return (
     <nav className={style.wrapper}>
