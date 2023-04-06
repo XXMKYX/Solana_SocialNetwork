@@ -1,31 +1,31 @@
 {
   "version": "0.1.0",
-  "name": "instagram",
+  "name": "fizzbuzz",
   "instructions": [
-    {
-      "name": "createUser",
-      "accounts": [
-        { "name": "user", "isMut": true, "isSigner": false },
-        { "name": "owner", "isMut": true, "isSigner": true },
-        { "name": "systemProgram", "isMut": false, "isSigner": false },
-        { "name": "rent", "isMut": false, "isSigner": false }
-      ],
-      "args": []
-    },
     {
       "name": "createPost",
       "accounts": [
         { "name": "post", "isMut": true, "isSigner": false },
         { "name": "user", "isMut": true, "isSigner": false },
         { "name": "owner", "isMut": true, "isSigner": true },
-        { "name": "systemProgram", "isMut": false, "isSigner": false },
-        { "name": "rent", "isMut": false, "isSigner": false }
+        { "name": "rent", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
       ],
       "args": [
         { "name": "title", "type": "string" },
         { "name": "image", "type": "string" },
         { "name": "postId", "type": "u64" }
       ]
+    },
+    {
+      "name": "createUser",
+      "accounts": [
+        { "name": "user", "isMut": true, "isSigner": false },
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "rent", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
     },
     {
       "name": "deletePost",
@@ -45,24 +45,24 @@
       "args": []
     },
     {
-      "name": "updatePost",
-      "accounts": [
-        { "name": "post", "isMut": true, "isSigner": false },
-        { "name": "owner", "isMut": true, "isSigner": true }
-      ],
-      "args": [{ "name": "title", "type": "string" }]
-    },
-    {
       "name": "likePost",
       "accounts": [
         { "name": "like", "isMut": true, "isSigner": false },
         { "name": "post", "isMut": true, "isSigner": false },
         { "name": "user", "isMut": true, "isSigner": false },
         { "name": "liker", "isMut": true, "isSigner": true },
-        { "name": "systemProgram", "isMut": false, "isSigner": false },
-        { "name": "rent", "isMut": false, "isSigner": false }
+        { "name": "rent", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
       ],
       "args": []
+    },
+    {
+      "name": "updatePost",
+      "accounts": [
+        { "name": "post", "isMut": true, "isSigner": false },
+        { "name": "owner", "isMut": true, "isSigner": true }
+      ],
+      "args": [{ "name": "title", "type": "string" }]
     }
   ],
   "accounts": [
@@ -78,6 +78,19 @@
       }
     },
     {
+      "name": "Post",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "owner", "type": "publicKey" },
+          { "name": "id", "type": "u64" },
+          { "name": "likes", "type": "u64" },
+          { "name": "image", "type": "string" },
+          { "name": "title", "type": "string" }
+        ]
+      }
+    },
+    {
       "name": "User",
       "type": {
         "kind": "struct",
@@ -86,38 +99,11 @@
           { "name": "lastPostId", "type": "u64" }
         ]
       }
-    },
-    {
-      "name": "Post",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          { "name": "owner", "type": "publicKey" },
-          { "name": "id", "type": "u64" },
-          { "name": "likes", "type": "u64" },
-          { "name": "title", "type": "string" },
-          { "name": "image", "type": "string" }
-        ]
-      }
     }
   ],
   "events": [
     {
-      "name": "UpdatePostEvent",
-      "fields": [
-        { "name": "owner", "type": "publicKey", "index": false },
-        { "name": "id", "type": "u64", "index": false }
-      ]
-    },
-    {
       "name": "DeletePostEvent",
-      "fields": [
-        { "name": "owner", "type": "publicKey", "index": false },
-        { "name": "id", "type": "u64", "index": false }
-      ]
-    },
-    {
-      "name": "NewPostEvent",
       "fields": [
         { "name": "owner", "type": "publicKey", "index": false },
         { "name": "id", "type": "u64", "index": false }
@@ -129,6 +115,20 @@
         { "name": "owner", "type": "publicKey", "index": false },
         { "name": "id", "type": "u64", "index": false },
         { "name": "likes", "type": "u64", "index": false }
+      ]
+    },
+    {
+      "name": "NewPostEvent",
+      "fields": [
+        { "name": "owner", "type": "publicKey", "index": false },
+        { "name": "id", "type": "u64", "index": false }
+      ]
+    },
+    {
+      "name": "UpdatePostEvent",
+      "fields": [
+        { "name": "owner", "type": "publicKey", "index": false },
+        { "name": "id", "type": "u64", "index": false }
       ]
     }
   ]

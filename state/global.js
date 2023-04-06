@@ -76,23 +76,25 @@ export const GlobalState = ({ children }) => {
   //4- Create User
   //call the paramet we nedee
   const createUser = useCallback(async () => {
-    if (!program) return; //Validation
-    try {
-      //Calling function from SmartContract
-      const txHash = await program.methods
-        .createUser()
-        //Passing in the accounts it needs right
-        .accounts({
-          user: await getUserAccountPk(wallet.publicKey),
-          owner: wallet.publicKey,
-        })
-        .rpc();
-      await connection.confirmTransaction(txHash); //Confirm transaction
-      toast.success("Created user!");
-      await fetchUserAccount();
-    } catch (e) {
-      console.log("Couldn't create user", e.message);
-      toast.error("Creating user failed!");
+    if (program && wallet.publicKey) {
+      //Validation
+      try {
+        //Calling function from SmartContract
+        const txHash = await program.methods
+          .createUser()
+          //Passing in the accounts it needs right
+          .accounts({
+            user: await getUserAccountPk(wallet.publicKey),
+            owner: wallet.publicKey,
+          })
+          .rpc();
+        await connection.confirmTransaction(txHash); //Confirm transaction
+        toast.success("Created user!");
+        await fetchUserAccount();
+      } catch (e) {
+        console.log("Couldn't create user", e.message);
+        toast.error("Creating user failed!");
+      }
     }
   });
   return (
