@@ -1,9 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useState } from 'react'
+import { useGlobalState } from '../../hooks'
 
-export default function CreatePostModal({ createPost, createPostModalOpen, setCreatePostModalOpen }) {
+export default function CreatePostModal({createPostModalOpen, setCreatePostModalOpen }) {
     const [caption, setCaption] = useState('')
     const [imageURL, setImageURL] = useState('')
+
+    const {
+        createPost
+    } = useGlobalState()
 
     const closeModal = () => {
         setCreatePostModalOpen(false)

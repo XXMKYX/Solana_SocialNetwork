@@ -31,6 +31,7 @@ export const GlobalState = ({ children }) => {
   const [program, setProgram] = useState(); //Get the program and set it in our state to use anywhere
   const [isConnected, setIsConnected] = useState(); //To check connection
   const [userAccount, setUserAccount] = useState(); //Save user account to fetch
+  const [posts, setPosts] = useState([]);
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
   useEffect(() => {
@@ -73,6 +74,49 @@ export const GlobalState = ({ children }) => {
   useEffect(() => {
     fetchUserAccount();
   }, [isConnected]);
+
+  // -
+  const fetchPosts = useCallback(async () => {
+    if (!program) return;
+    //Feching all the post that exist from the program
+    const posts = await program.account.post.all();
+    setPosts(posts.map((post) => post.account)); //((post)) map for every post
+  }, [program]);
+  //Ensure that it's always fetching the posts as it comes or if anything changes
+  useEffect(() => {
+    if (!program) {
+      fetchPosts();
+    }
+  }, [posts, fetchPosts]);
+
+  // -Program Events
+  useEffect(() => {
+    if (!program) return;
+
+    //New Post Event
+    const newPostEventListener = program.addEventListener(
+      "NewPostEvent",
+      async (postEvent) => {
+        try {
+          const postAccountPk = await getPostAccountPk(
+            postEvent.owner,
+            postEvent.id
+          );
+          //Here the post now is created
+          const newPost = await program.account.post.fetch(postAccountPk);
+          //The new post gets added to that list post
+          setPosts((posts) => [newPost, ...posts]);
+        } catch (e) {
+          console.log("Couldn't fetch new post account", postEvent, e);
+        }
+      }
+    );
+    return () => {
+      //remove the event listeners
+      program.removeEventListener(newPostEventListener);
+    };
+  }, [program]); //run once if the program ever changes
+
   //4- Create User
   //call the paramet we nedee
   const createUser = useCallback(async () => {
@@ -97,13 +141,39 @@ export const GlobalState = ({ children }) => {
       }
     }
   });
+
+  //Create Post
+  const createPost = useCallback(async (title, image) => {
+    if (!userAccount) return;
+    try {
+      const postId = userAccount.lastPostId.addn(1); //Get last post id
+      const txHash = await program.methods
+        .createPost(title, image, postId)
+        .accounts({
+          post: await getPostAccountPk(wallet.publicKey, postId.toNumber()),
+          user: await getUserAccountPk(wallet.publicKey),
+          owner: wallet.publicKey,
+        })
+        .rpc();
+      await connection.confirmTransaction(txHash); //Confirm transaction
+      toast.success("Post created!");
+      //Update user account
+      await fetchUserAccount();
+    } catch (e) {
+      toast.error("Creating post failed!");
+      console.log(e.message);
+    }
+  });
+
   return (
     <GlobalContext.Provider
+      //SET
       value={{
         isConnected,
         //Make dinamic the true or false in hasUserAccount
         hasUserAccount: userAccount ? true : false, //If there is a user account it shoul be true
         createUser,
+        createPost,
       }} //will be able to be passed on anywhere
     >
       {children}
