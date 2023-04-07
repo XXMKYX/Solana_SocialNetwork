@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 
 import EditPostModal from "../components/modals/EditPostModal";
 import CreatePostModal from "../components/modals/CreatePostModal";
-import { useGlobalState } from "../hooks/useGlobalState";
+import { useGlobalState } from "../hooks";
 
 const style = {
   container: `homepage-feed lg:mr-8 flex flex-col`,
@@ -20,8 +20,9 @@ export default function Home() {
   const [createPostModalOpen, setCreatePostModalOpen] = useState(false);
   const [currentEditPostID, setCurrentEditPostID] = useState(null);
 
+  const {posts} = useGlobalState()
   
-
+   console.log(posts)
   //Quit comments just to see and verify get the program, after that comment next lines
   
   //const { program } = useGlobalState(); //This is to verify the two nexr lines
@@ -35,7 +36,7 @@ export default function Home() {
     setEditPostModalOpen(value);
   };
 
-  //Static Data
+  //Static Data xample
   const wallet = "111111111111111111";
 
   const staticPosts = [
@@ -76,8 +77,8 @@ export default function Home() {
 
         <>
           {/* Render posts */}
-          {staticPosts
-            ? staticPosts.map((post, i) => (
+          {posts
+            ? posts.map((post, i) => (
                 <FeedItem
                   data={post}
                   key={i}

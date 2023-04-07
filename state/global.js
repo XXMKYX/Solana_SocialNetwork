@@ -31,7 +31,7 @@ export const GlobalState = ({ children }) => {
   const [program, setProgram] = useState(); //Get the program and set it in our state to use anywhere
   const [isConnected, setIsConnected] = useState(); //To check connection
   const [userAccount, setUserAccount] = useState(); //Save user account to fetch
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState();
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
   useEffect(() => {
@@ -84,7 +84,7 @@ export const GlobalState = ({ children }) => {
   }, [program]);
   //Ensure that it's always fetching the posts as it comes or if anything changes
   useEffect(() => {
-    if (!program) {
+    if (!posts) {
       fetchPosts();
     }
   }, [posts, fetchPosts]);
@@ -106,6 +106,7 @@ export const GlobalState = ({ children }) => {
           const newPost = await program.account.post.fetch(postAccountPk);
           //The new post gets added to that list post
           setPosts((posts) => [newPost, ...posts]);
+          
         } catch (e) {
           console.log("Couldn't fetch new post account", postEvent, e);
         }
@@ -168,12 +169,14 @@ export const GlobalState = ({ children }) => {
   return (
     <GlobalContext.Provider
       //SET
+      
       value={{
         isConnected,
         //Make dinamic the true or false in hasUserAccount
         hasUserAccount: userAccount ? true : false, //If there is a user account it shoul be true
         createUser,
         createPost,
+        posts,
       }} //will be able to be passed on anywhere
     >
       {children}
