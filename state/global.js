@@ -31,7 +31,7 @@ export const GlobalState = ({ children }) => {
   const [program, setProgram] = useState(); //Get the program and set it in our state to use anywhere
   const [isConnected, setIsConnected] = useState(); //To check connection
   const [userAccount, setUserAccount] = useState(); //Save user account to fetch
-  const [posts, setPosts] = useState();
+  const [posts, setPosts] = useState(); //To the xample this is ([])
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
   useEffect(() => {
