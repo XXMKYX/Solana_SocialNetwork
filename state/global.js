@@ -106,15 +106,35 @@ export const GlobalState = ({ children }) => {
           const newPost = await program.account.post.fetch(postAccountPk);
           //The new post gets added to that list post
           setPosts((posts) => [newPost, ...posts]);
-          
         } catch (e) {
           console.log("Couldn't fetch new post account", postEvent, e);
         }
       }
     );
+
+    //Delete Post Event
+    const deletePostEventListener = program.addEventListener(
+      //event we listening for
+      "DeletePostEvent", //From SmartContract
+      (deleteEvent) => {
+        setPosts((posts) => {
+          //Look through the posts and get the matching post
+          posts.filter(
+            (post) =>
+              //Matching with the correct owner and id that I'm clicking on
+              !(
+                post.owner.equals(deleteEvent.owner) &&
+                post.id.eq(deleteEvent.id)
+              )
+          );
+        });
+      }
+    );
+
     return () => {
       //remove the event listeners
       program.removeEventListener(newPostEventListener);
+      program.removeEventListener(deletePostEventListener);
     };
   }, [program]); //run once if the program ever changes
 
@@ -166,17 +186,36 @@ export const GlobalState = ({ children }) => {
     }
   });
 
+  //Delete Post
+  const deletePost = useCallback(async (owner, id) => {
+    if (!userAccount) return;
+    try {
+      const txHash = await program.methods
+        .deletePost()
+        .accounts({
+          post: await getPostAccountPk(owner, id),
+          owner,
+        })
+        .rpc();
+      toast.success("Post deleted successfully!");
+    } catch (e) {
+      toast.error("Failed to delete!");
+      console.log(e.message);
+    }
+  });
+
   return (
     <GlobalContext.Provider
       //SET
-      
+
       value={{
         isConnected,
         //Make dinamic the true or false in hasUserAccount
         hasUserAccount: userAccount ? true : false, //If there is a user account it shoul be true
+        posts,
         createUser,
         createPost,
-        posts,
+        deletePost,
       }} //will be able to be passed on anywhere
     >
       {children}
