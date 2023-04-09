@@ -32,7 +32,7 @@ export default function Home() {
   // Function to target which post is being edited
   const toggleEditPostModal = (value, postId, owner) => {
     setCurrentEditPostID(postId);
-
+    //Open modal
     setEditPostModalOpen(value);
   };
 

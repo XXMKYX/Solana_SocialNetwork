@@ -95,7 +95,7 @@ export const GlobalState = ({ children }) => {
 
     //New Post Event
     const newPostEventListener = program.addEventListener(
-      "NewPostEvent",
+      "NewPostEvent", //From SmartContract
       async (postEvent) => {
         try {
           const postAccountPk = await getPostAccountPk(
@@ -108,6 +108,37 @@ export const GlobalState = ({ children }) => {
           setPosts((posts) => [newPost, ...posts]);
         } catch (e) {
           console.log("Couldn't fetch new post account", postEvent, e);
+        }
+      }
+    );
+
+    //Update Post Event
+    const updatePostEventListener = program.addEventListener(
+      //event we listening for
+      "UpdatePostEvent", //From SmartContract
+      async (updateEvent) => {
+        try {
+          const postAccountPk = await getPostAccountPk(
+            updateEvent.owner,
+            updateEvent.id
+          );
+          //Here the post now is created
+          const updatedPost = await program.account.post.fetch(postAccountPk);
+          //The new post gets added to that list post
+          setPosts((posts) =>
+              posts.map((post) => {
+                //for every post
+                if (
+                  post.owner.equals(updatedPost.owner) &&
+                  post.id.eq(updatedPost.id)
+                ) {
+                  return updatedPost;
+                }
+                return post;
+              }) //mapping through to create
+          ); //Seting the post to an array
+        } catch (e) {
+          console.log("Couldn't fetch update post account", updateEvent, e);
         }
       }
     );
@@ -186,6 +217,24 @@ export const GlobalState = ({ children }) => {
     }
   });
 
+  const updatePost = useCallback(async (owner, id, title) => {
+    if (!userAccount) return;
+    try {
+      const txHash = await program.methods
+        //console.log(txHash)
+        .updatePost(title)
+        .accounts({
+          post: await getPostAccountPk(owner, id),
+          owner,
+        })
+        .rpc();
+      toast.success("Caption updated!");
+    } catch (e) {
+      toast.error("failed to update post!");
+      console.log(e.message);
+    }
+  });
+
   //Delete Post
   const deletePost = useCallback(async (owner, id) => {
     if (!userAccount) return;
@@ -210,11 +259,13 @@ export const GlobalState = ({ children }) => {
 
       value={{
         isConnected,
+        wallet,
         //Make dinamic the true or false in hasUserAccount
         hasUserAccount: userAccount ? true : false, //If there is a user account it shoul be true
         posts,
         createUser,
         createPost,
+        updatePost,
         deletePost,
       }} //will be able to be passed on anywhere
     >
