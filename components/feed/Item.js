@@ -37,7 +37,7 @@ const FeedItem = ({ data, walletKey, setEditPostModalOpen, toggleEditPostModal, 
                 toggleEditPostModal={toggleEditPostModal}
                 setCreatePostModalOpen={setCreatePostModalOpen}
             />
-
+            
             <a className={style.likesContainer}>{data.likes.toString() != 0 ? data.likes.toString() : randomLikeNumber} likes</a>
 
             <Caption

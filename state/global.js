@@ -143,7 +143,7 @@ export const GlobalState = ({ children }) => {
       }
     );
 
-    //Delete Post Event
+    //Delete Post Event (NOT WORK FOR THE LAMPORTS)
     const deletePostEventListener = program.addEventListener(
       //event we listening for
       "DeletePostEvent", //From SmartContract
